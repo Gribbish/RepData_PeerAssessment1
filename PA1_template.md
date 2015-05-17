@@ -6,7 +6,8 @@ Peer Assessment 1
 
 ####1. Load the data
 
-```{r, echo=TRUE}
+
+```r
 data <- read.csv("activity.csv", header=TRUE)
 ```
 
@@ -14,12 +15,25 @@ data <- read.csv("activity.csv", header=TRUE)
 ####2. Process/transform the data into a format suitable for analysis
 
 Examine class of variables
-```{r, echo=TRUE}
+
+```r
 lapply(data, class)
 ```
 
+```
+## $steps
+## [1] "integer"
+## 
+## $date
+## [1] "factor"
+## 
+## $interval
+## [1] "integer"
+```
+
 Formatting date variable
-```{r, echo=TRUE}
+
+```r
 data$date <- as.Date(data$date, "%Y-%m-%d")
 ```
 
@@ -29,32 +43,46 @@ data$date <- as.Date(data$date, "%Y-%m-%d")
 
 ####1. Calculate the total number of steps taken per day
 
-```{r, echo=TRUE}
+
+```r
 steps.total <- aggregate(steps ~ date, data = data, sum, na.rm = TRUE)
 ```
 
 
 ####2. Make a histogram of the total number of steps taken each day
 
-```{r, echo=TRUE}
+
+```r
 hist(steps.total$steps, col = "aquamarine4", bg = "transparent", 
      main = "Total number of steps taken each day \n(NA's removed)",
      xlab = "Total number of steps",
      ylab = "Frequency")
 ```
 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+
 
 ####3. Calculate and report the mean and median of the total number of steps 
 ####taken per day
 
 Mean of the total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 mean(steps.total$steps)
 ```
 
+```
+## [1] 10766.19
+```
+
 Median of the total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 median(steps.total$steps)
+```
+
+```
+## [1] 10765
 ```
 
 
@@ -65,12 +93,14 @@ median(steps.total$steps)
 ####and the average number of steps taken, averaged across all days (y-axis)
 
 Calculation of average number of steps taken each day
-```{r, echo=TRUE}
+
+```r
 steps.average <- aggregate(steps ~ interval, data = data, mean, na.rm = TRUE)
 ```
 
 Time series plot
-```{r, echo=TRUE}
+
+```r
 library(ggplot2)
 ggplot(steps.average) +
         aes(x = interval, y = steps) + 
@@ -82,12 +112,19 @@ ggplot(steps.average) +
              \n(NA's removed)")
 ```
 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
+
 
 ####2. Which 5-minute interval, on average across all the days in the dataset, 
 ####contains the maximum number of steps?
 
-```{r,echo=TRUE}
+
+```r
 steps.average$interval[which.max(steps.average$steps)]
+```
+
+```
+## [1] 835
 ```
 
 
@@ -97,8 +134,13 @@ steps.average$interval[which.max(steps.average$steps)]
 ####1. Calculate and report the total number of missing values in the dataset 
 ####(i.e. the total number of rows with NAs)
 
-```{r, echo=TRUE}
+
+```r
 nrow(data[!complete.cases(data), ])
+```
+
+```
+## [1] 2304
 ```
 
 
@@ -112,7 +154,8 @@ outliers. If distribution is simetrical and without outliers median is the same
 as the mean.
 
 First, a variable with median values of each interval was created
-```{r, echo=TRUE}
+
+```r
 data$median.steps.per.interval <- ave(data$steps, data$interval, 
                                     FUN = function(x) 
                                             median(x, na.rm = TRUE))
@@ -122,7 +165,8 @@ Then another new variable was created, with values the same as those in 'steps'
 variable, but missing values were replaced with median values associated with
 intervals. New variable was made in order to keep original variables as they 
 were in an original data set.
-```{r, echo=TRUE}
+
+```r
 data$steps.filled <- ifelse(is.na(data$steps), 
                             data$median.steps.per.interval, data$steps)
 ```
@@ -132,14 +176,32 @@ data$steps.filled <- ifelse(is.na(data$steps),
 ####the missing data filled in
 
 New data set was made, consisting of the same variables as the original data set
-```{r, echo=TRUE}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 data.na.replaced <- select(data, c(steps.filled, date, interval))
 ```
 
 Since in new data set variable 'steps' was named 'steps.filled', it was renamed
 in order to make the new data set equal to the original
-```{r, echo=TRUE}
+
+```r
 library(dplyr)
 data.na.replaced <- rename(data.na.replaced, steps = steps.filled)
 ```
@@ -152,27 +214,41 @@ data.na.replaced <- rename(data.na.replaced, steps = steps.filled)
 ####of the total daily number of steps?
 
 Calculation of the total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 steps.total.na.replaced <- aggregate(steps ~ date, 
                                      data = data.na.replaced, sum)
 ```
 
 Histogram of the total number of steps taken each day
-```{r, echo=TRUE}
+
+```r
 hist(steps.total.na.replaced$steps, col = "aquamarine4", bg = "transparent", 
      main = "Total number of steps taken each day \n(NA's replaced with median)",
      xlab = "Total number of steps",
      ylab = "Frequency")
 ```
 
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png) 
+
 Mean of the total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 mean(steps.total.na.replaced$steps)
 ```
 
+```
+## [1] 9503.869
+```
+
 Median of the total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 median(steps.total.na.replaced$steps)
+```
+
+```
+## [1] 10395
 ```
 
 These values differ from the estimates from the first part of the assignment, 
@@ -190,24 +266,36 @@ those values.
 ####and "weekend" indicating whether a given date is a weekday or weekend day.
 
 First, a variable with (all) weekdays was made
-```{r, echo=TRUE}
+
+```r
 data.na.replaced$weekday <- weekdays(data.na.replaced$date)
 ```
 
 Class of new variable was checked
-```{r, echo=TRUE}
+
+```r
 class(data.na.replaced$weekday)
 ```
 
+```
+## [1] "character"
+```
+
 ...since it was 'character', variable was formatted as factor
-```{r, echo=TRUE}
+
+```r
 data.na.replaced$weekday <- as.factor(data.na.replaced$weekday)
 class(data.na.replaced$weekday)
 ```
 
+```
+## [1] "factor"
+```
+
 Then, a factor variable was created, indicating whether a given day 
 is a weekday or weekend day
-```{r, echo=TRUE}
+
+```r
 library(car)
 data.na.replaced$weekday.type <- recode(data.na.replaced$weekday,
                                         "c('Saturday', 'Sunday')='Weekend day';
@@ -221,13 +309,15 @@ data.na.replaced$weekday.type <- recode(data.na.replaced$weekday,
 ####weekday days or weekend days (y-axis). 
 
 Calculation of the average number of steps
-```{r, echo=TRUE}
+
+```r
 steps.average.na.replaced <- aggregate(steps ~ interval + weekday.type, 
                                        data = data.na.replaced, mean)
 ```
 
 panel plot containing a time series plot
-```{r, echo=TRUE}
+
+```r
 library(ggplot2)
 
 ggplot(steps.average.na.replaced) +
@@ -240,6 +330,8 @@ ggplot(steps.average.na.replaced) +
         labs(title = "Time series plot of the 5-minute intervals 
              \non Weekends and Week days")
 ```
+
+![plot of chunk unnamed-chunk-25](figure/unnamed-chunk-25-1.png) 
 
 
 
